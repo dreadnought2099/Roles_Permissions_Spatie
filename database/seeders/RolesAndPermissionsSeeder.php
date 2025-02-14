@@ -2,32 +2,45 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
+use App\Models\User;
 
 class RolesAndPermissionsSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
-    public function run(): void
+    public function run()
     {
-       //create roles
-       $admin = Role::create(['name', 'admin']);
-       $user = Role::create(['name', 'user']);
 
-       //create permissions
-       $permissions = [
-            ['name' => 'create'],
-            ['name' => 'update'],
-            ['name' => 'delete'],
-       ];
+        $permissions = [
+            'create posts',
+            'edit posts',
+            'delete posts',
+            'view posts'
+        ];
 
-       Permission::insert($permissions);
 
-       $admin->givePermissionTo($permissions);
-       $user->givePermissionTo('create');
+        foreach ($permissions as $permission) {
+            Permission::firstOrCreate(['name' => $permission]);
+        }
+
+
+        $roles = [
+            'Admin' => ['create posts', 'edit posts', 'delete posts', 'view posts'],
+            'Editor' => ['edit posts', 'delete posts','view posts'],
+            'User' => ['view posts']
+        ];
+
+        foreach ($roles as $role => $perms) {
+            $role = Role::firstOrCreate(['name' => $role]);
+            $role->syncPermissions($perms);
+        }
+
+
+        $users = User::inRandomOrder()->limit(10)->get();
+        foreach ($users as $user) {
+            $randomRole = array_rand($roles);
+            $user->assignRole(array_keys($roles)[$randomRole]);
+        }
     }
 }
