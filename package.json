@@ -3,6 +3,8 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
+        "build:css": "tailwindcss build resources/css/app.css -o public/css/app.css",
+        "watch:css": "tailwindcss build resources/css/app.css -o public/css/app.css --watch",
         "dev": "vite"
     },
     "devDependencies": {
